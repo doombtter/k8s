@@ -1,0 +1,1 @@
+kops create cluster --name=k8s.lolin.in --state=s3://kops-state-999b --zones=eu-west-1a --node-count=2 --node-size=t2.micro --master-size=t2.micro --dns-zone=k8s.lolin.in
