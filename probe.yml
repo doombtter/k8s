@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: probe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: probe
+  template:
+    metadata:
+      labels:
+        app: probe
+    spec:
+      initContainers:
+      - name:
+        image:
+        command:
+      containers:
+      - name: probe-container
+        image: busybox
+        command: []
+        readinessProbe:
+          exec:
+            command: []
+          initialDelaySeconds: 35
+        livenessProbe:
+          exec:
+            command: []
+          initialDelaySeconds: 35
+          timeoutSeconds: 30
+        lifecycle:
+          postStart:
+            exec:
+              command: []
+          preStop:
+            exec:
+              command: []
