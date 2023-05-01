@@ -1,0 +1,109 @@
+Resource Usage Monitoring
+
+Heapster을 사용하면 컨테이너 클러스터 모니터링과 성능 분석이 가능함
+팟 오토스케일링을 하기 위한 전제조건
+
+Heapster는 REST endpoint를 통해 cluster metrics를 보냄
+다양한 백엔드를 사용 할 수 있음
+(InfluxDB, Kafka, GC Monitoring 등)
+
+Visualization > Grafana
+
+github.com/kubernetes/heapster/tree/master/deploy/kube-config/influxdb
+
+AutoScaling
+
+쿠버네티스는 메트릭 기반으로 팟을 자동으로 확장 할 수 있음
+CPU 사용량에 따라 확장이 가능
+
+target pod의 사용량을 주기적으로 query
+기본값은 30초지만
+--horizontal-pod-autoscaler-sync-period를 사용하여 변경 가능
+
+AutoScaling은 heapster을 이용해 metric을 수집한 이후에 확장 결정을 내림
+
+
+Affinity, anti-affinity
+
+엄격한 요구 사항이 아닌 선호 규칙을 만들 수 있음
+규칙을 충족하지 못하더라도 팟을 스케쥴링 가능
+
+node-Selectors의 경우 노드에 해당 라벨이 없으면 절대 스케쥴링 하지 못함
+
+특정 라벨의 노드를 선호하지만 해당 노드에 스케쥴링 할 수 없다면
+다른 노드에 스케쥴링됨
+
+다른 팟의 라벨을 고려하는 규칙을 생성할 수 있음
+
+node affinity, pod affinity/anti-affinity
+
+스케쥴링 중에만 적절한 매커니즘
+팟이 실행되고 나면 규칙을 생성하기 위해 다시 생성해야함
+팟을 다른 노드에서 실행하기위해 제거 후 다시 생성해야함
+
+node affinity에 사용 가능한 두가지 유형
+
+1. requiredDuringSchedulingIgnoredDuringExecution
+
+nodeSelector처럼 엄격한 요구 사항을 설정
+반드시 규칙을 충족해야함
+
+2. preferredDuringSchedulingIgnoredDuringExecution
+
+규칙을 시행하려고 하지만 보장하지는 않음
+규칙을 충족시키지 못해도 여전히 스케쥴링 가능
+
+가중치를 부여 할 수 있음
+
+ex. 두개의 다른 선호 규칙이 있는 경우에
+가중치가 1에서 5까지 있다고 하면 두가지 규칙이 일치할 경우
+노드의 점수는 6
+다른 노드에서 가중치가 1인 규칙만 일치할 경우,
+총 점수가 높은 노드에서 스케쥴링됨
+
+규칙을 작성할떄, topologyKey를 지정해야함
+node label의 키
+
+규칙이 충족되면 새로운 팟은 현재 실행 중인 팟과
+topologyKey 값이 동일한 노드에서만 스케쥴링됨
+
+예.
+노드1, 노드2(topologyKey: "hostname")에서
+app = myapp 라벨이 있는 pod
+new pod app=redis, topologyKey: "hostname"
+> 노드2
+
+taint / tolerations
+
+노드가 pod set에 접근하지 못하게 함
+tolerations node affinity의 반대 개념
+
+taint는 노드를 표시하여 스케쥴링에 영향을 줌
+
+적용 사례. 새로운 팟을 생성할떄 마스터에 스케쥴되지 않음
+
+kubectl taint node {} key=value:option
+
+custum Resource
+
+쿠버네티스 API를 확장
+예. 애플리케이션을 배포할때 사용할 수 있는 내장된 배포 리소스
+yaml파일에서 배포 리소스 유형을 사용해서 객체를 설명할 수 있음
+kubectl을 사용해서 클러스터에 객체를 만들어 줌
+
+Custem resource는 클러스터에 추가할 수 있는 리소스
+커스텀리소스 정의를 동적으로 추가하여 클러스터에 추가 기능을 추가할 수 있음
+
+CRDs를 사용하여 자체 기능으로 쿠버네티스 API를 확장
+
+연산자
+
+packaging, deploying, managing을 진행하는 method
+어플리케이션에 운영 지식을 넣어줌
+
+연산자가 배포되면 커스텀 리소스 정의를 사용하여 연산자를 관리
+쿠버네티스에 stateful service를 배포하는 좋은 방법을 제공
+(Prometheus, Vault, Rook(Storage), MySQL, PostgreSQL)
+
+PostgreSQL 컨테이너를 배포하고 싶다면, 데이터베이스를 시작하기만 하면 됨
+operator을 사용하기 위해, create replicas, initiate a failover, create backups, scale 생성

@@ -1,0 +1,95 @@
+Service Discovery
+
+동일 팟에 있는 컨테이너는 localhost:port를 사용하여 연결
+다른 팟에 연결하려는 경우, 서비스 탐색이 필요
+network팟의 경우, 항상 서비스 정의가 필요
+
+DNS 동작
+kubectl run -i --tty busybox --image=busybox --restart=Never -- sh:
+cat /etc/resolv.conf
+kube dns nameserver
+기본적으로 kube-system에서 kube-dns 실행
+
+Configmap
+
+Configmap은 Secret과 다르게 Configuration parameter을 넣을 수 있음
+key-value
+앱을 통해 환경변수로 읽을 수 있음
+팟 구성이나 볼륨에서 Container commandline arguments를 사용가능
+web server config file 등 (nginx)
+
+kubectl create configmap app-config --from-file=app.properties
+
+volume을 사용하는 configmap pod 생성하거나 environments 사용
+
+Ingress controller
+
+외부 로드밸런서와 nodePorts에 대한 대안
+Ingress는 외부에서 클러스터로 액세스해야 하는 서비스를 쉽게 노출
+쿠버네티스 클러스터 내에서 고유 인그레스 컨트롤러를 실행 할 수도 있음
+
+nginx ingress controller은 트래픽을 서비스에 분배
+
+ingress rules
+host-x.example.com => pod1
+host-y.example.com => pod2
+host-x.example.com/api/v2 => pod n
+
+규칙은 경로기반
+
+External DNS
+
+인그레스 컨트롤러를 사용하여 비용 절감 가능
+Route53 등 에 새로운 레코드를 생성
+
+AWS Route53 AWS LB
+Service : ingress
+Pod1 nginx ingress controller
+Pod2 External DNS
+
+Volume
+
+Persistent Volume을 사용하면 컨테이너가 멈추더라도 존재하는 컨테이너에 볼륨을 연결 할 수 있음
+
+EBS, Google Disk 등
+
+kubelet / kube-proxy > iptables > 
+pod1 > local volume
+podN > EBS
+
+Volume Provision
+새로운 볼륨을 생성하기위해 명령어를 입력하는 대신에, 쿠버네티스는 API를 호출해서 처리 가능
+스토리지 클래스 객체를 사용하여 완료
+
+Pod Preset
+
+런타임 중에 정보를 팟에 넣을 수 있음
+secret, configmap ,volume이나 environments variables를 삽입하는 데에 사용
+
+팟 안에 있는 모든 컨테이너에 적용됨
+팟 프리셋은 0개 이상의 팟과 매칭될 수 있음
+
+StatefulSets
+
+안정적인 팟 호스트명이 필요함(podname-randomstring이 아닌)
+팟네임은 index를 사용해서 고정 권한(ID)을 가짐
+다시 스케쥴링되도 그대로
+number을 기반으로 안정적인 유지 가능
+
+삭제하거나 축소해도 volume이 삭제되지 않고 데이터가 보존
+
+DNS를 사용하여 다른 peers를 탐색
+(Cassandra cluster나 ElasticSearch cluster)
+
+스테이트풀셋을 사용하지 않으면 동적 호스트명을 얻음
+stateful 앱이 시작과 해체를 명령할 수 있도록 허용함
+무작위로 하나의 팟을 종료하는 대신 특정 팟이 종료될 지 알 수 있음
+
+deamonset
+
+쿠버네티스 클러스터의 모든 노드가 같은 팟 리소스를 실행하도록 함
+쿠버네티스 노드에서 특정 팟이 실행되도록 할 경우에 유용함
+언제나 노드의 양과 동일한 팟의 양이 있는 것
+
+로그 집계나 모니터링, LB, Reverse Proxies, API Gateways
+쿠버네티스 크럴스터의 노드에 하나의 팟만 실행하고 보통 인스턴스당 하나의 팟 인스턴스만 필요한 데몬을 실행하는 경우 사용
