@@ -1,0 +1,29 @@
+helm
+소프트웨어를 검색하고 공유하고 사용
+쿠버네티스용 패키지 관리자
+
+chart
+쿠버네티스 리소스 세트를 설명하는 파일 컬렉션
+쿠버네티스가 읽을 수 있는 yaml 파일을 생성
+
+command
+helm init : 클러스터에 tiller을 설치
+helm reset : 클러스터에서 tiller을 제거
+helm install : 차트를 설치
+helm search : 차트를 검색
+helm list : 설치된 차트를 나열
+helm upgrade : 릴리즈를 업그레이드
+helm rollback : 릴리즈를 이전 버전으로 롤백
+
+helm 차트를 생성하고 버전을 제어하거나 배포할 수 있음
+
+helm create {}
+{}/
+chart.yaml
+values.yaml
+templates/
+templates/deployment.yaml
+templates/service.yaml
+
+컨테이너가 아닌 코드를 push
+변경 사항이 있을 때마다 yaml파일을 배포하여 코드 쿠버네티스 클러스터를 동기화 상태로 유지

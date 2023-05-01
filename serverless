@@ -1,0 +1,17 @@
+KUBELESS
+
+쿠버네티스 리소스를 활용하여 오토스케일링 API Routing monitoring 등 지원
+
+사용자 지정 리소스 정의를 사용하여 함수를 생성
+UI 지원
+
+원하는 언어로 함수를 배포할 수 있음
+Python, NodeJS, Ruby, PHP 등
+
+배포 이후에는 트리거를 설정해야함
+HTTP functions
+
+특정 시간에 함수를 예약할 수 있음
+
+Kafka or NATS
+AWS Kinesis
